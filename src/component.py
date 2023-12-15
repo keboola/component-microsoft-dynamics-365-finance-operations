@@ -70,6 +70,9 @@ class Component(ComponentBase):
         if not organization_url:
             raise UserException('You must fill in the Organization URL')
 
+        if not self.configuration.oauth_credentials:
+            raise UserException("The configuration is not authorized. Please authorize it first.")
+
         refresh_token = self.configuration.oauth_credentials.data['refresh_token']
         self._client = DynamicsClient(self.configuration.oauth_credentials.appKey,
                                       self.configuration.oauth_credentials.appSecret, organization_url,
