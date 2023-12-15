@@ -10,13 +10,13 @@
       "type": "string",
       "title": "Organization URL",
       "minLength": 20,
-      "description": "URL to the CRM system located in the Dynamics 365 cloud. Usually in format <a href='https://<organization>.crm.dynamics.com'>https://&ltorganization&gt.crm.dynamics.com</a>.",
+      "description": "URL is located in the Dynamics 365 cloud. Usually in format https://<organization>.operations.dynamics.com.",
       "propertyOrder": 100
     },
-     "test_connection": {
-          "type": "button",
-          "format": "test-connection",
-          "propertyOrder": 500
-        }
+    "test_connection": {
+      "type": "button",
+      "format": "test-connection",
+      "propertyOrder": 500
+    }
   }
 }
