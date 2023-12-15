@@ -28,15 +28,15 @@ class Component(ComponentBase):
         _has_more = True
         _next_link = None
         _req_count = 0
-        column_metadata = self._client.list_columns_from_metadata()
-        _pk = column_metadata[self.cfg.endpoint]['primary_key']
+        # column_metadata = self._client.list_columns_from_metadata()
+        # _pk = column_metadata[self.cfg.endpoint]['primary_key']
         if not self.cfg.destination.table_name:
             res_name = f'{self.cfg.endpoint}.csv'
         else:
             res_name = f'{self.cfg.destination.table_name}.csv'
 
         res_table = self.create_out_table_definition(res_name,
-                                                     primary_key=_pk,
+                                                     primary_key=[],
                                                      incremental=self.cfg.destination.incremental)
 
         writer = DynamicsWriter(res_table.full_path)
