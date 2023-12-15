@@ -2,15 +2,14 @@
   "type": "object",
   "title": "API Settings",
   "required": [
-    "organization_url",
-    "api_version"
+    "organization_url"
   ],
   "properties": {
     "organization_url": {
       "type": "string",
       "title": "Organization URL",
       "minLength": 20,
-      "description": "URL is located in the Dynamics 365 cloud. Usually in format https://<organization>.operations.dynamics.com.",
+      "description": "URL is located in the Dynamics 365 cloud. Usually in format https://[ORGANIZATION].operations.dynamics.com.",
       "propertyOrder": 100
     },
     "test_connection": {

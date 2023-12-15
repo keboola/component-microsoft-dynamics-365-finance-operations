@@ -4,7 +4,7 @@
   "required": [
     "endpoint",
     "query",
-    "incremental"
+    "destination"
   ],
   "properties": {
     "endpoint": {
@@ -28,7 +28,7 @@
       "options": {
         "input_height": "100px"
       },
-      "description": "A Microsoft Web API query, which will be sent along with the request. All pieces of query can be separated by new-line or \"&\".</br>Please, refer to <a href='https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/webapi/query-data-web-api'>this article</a> explaining how to use the querying language.",
+      "description": "A Microsoft OData query, which will be sent along with the request. All pieces of query can be separated by new-line or \"&\".</br>Please, refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> explaining how to use the Odata filter.",
       "propertyOrder": 400
     },
     "destination": {
