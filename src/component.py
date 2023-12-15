@@ -86,8 +86,8 @@ class Component(ComponentBase):
     @sync_action('list_endpoints')
     def list_endpoints(self):
         self.init_client()
-        endpoints = self._client.list_endpoints()
-        return [SelectElement(el['name']) for el in endpoints]
+        endpoints = self._client.list_entity_metadata()
+        return [SelectElement(el['PublicCollectionName']) for el in endpoints if el['PublicCollectionName']]
 
     @sync_action('list_columns')
     def list_columns(self):
