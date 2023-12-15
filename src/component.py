@@ -1,7 +1,9 @@
+import json
 import logging
 
 from keboola.component import ComponentBase, UserException
 from keboola.component.base import sync_action
+from keboola.component.dao import OauthCredentials
 from keboola.component.sync_actions import SelectElement
 
 from configuration import Configuration
@@ -70,12 +72,19 @@ class Component(ComponentBase):
         if not organization_url:
             raise UserException('You must fill in the Organization URL')
 
-        if not self.configuration.oauth_credentials:
+        if custom_creds := self.configuration.parameters.get('custom_credentials'):
+            credentials = OauthCredentials('', '', json.loads(custom_creds['#data']), '',
+                                           custom_creds['appKey'],
+                                           custom_creds['#appSecret'])
+        else:
+            credentials = self.configuration.oauth_credentials
+
+        if not credentials:
             raise UserException("The configuration is not authorized. Please authorize it first.")
 
-        refresh_token = self.configuration.oauth_credentials.data['refresh_token']
-        self._client = DynamicsClient(self.configuration.oauth_credentials.appKey,
-                                      self.configuration.oauth_credentials.appSecret, organization_url,
+        refresh_token = credentials.data['refresh_token']
+        self._client = DynamicsClient(credentials.appKey,
+                                      credentials.appSecret, organization_url,
                                       refresh_token)
 
     def __init_configuration(self):
