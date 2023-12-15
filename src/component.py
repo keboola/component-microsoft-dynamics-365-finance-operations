@@ -95,10 +95,11 @@ class Component(ComponentBase):
         self.__init_configuration()
         columns = self._client.list_columns(self.cfg.endpoint)
         return [SelectElement(el) for el in columns]
-    @sync_action('test_connection')
-    def list_columns(self):
+
+    @sync_action('testConnection')
+    def test_connection(self):
         self.init_client()
-        columns = self._client.list_entity_metadata()
+        self._client.list_entity_metadata()
 
 
 """
