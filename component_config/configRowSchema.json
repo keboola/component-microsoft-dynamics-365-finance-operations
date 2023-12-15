@@ -43,7 +43,6 @@
           "type": "string",
           "title": "Storage Table Name",
           "propertyOrder": 10,
-          "minLength": 1,
           "description": "Name of the destination table for this query. I left empty, object name is used."
         },
         "incremental": {
