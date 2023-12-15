@@ -36,8 +36,7 @@
       "title": "Destination",
       "propertyOrder": 600,
       "required": [
-        "table_name",
-        "incremental_loading"
+        "incremental"
       ],
       "properties": {
         "table_name": {
