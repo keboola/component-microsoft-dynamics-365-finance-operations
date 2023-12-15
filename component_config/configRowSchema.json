@@ -1,0 +1,70 @@
+{
+  "type": "object",
+  "title": "Parameters",
+  "required": [
+    "endpoint",
+    "query",
+    "incremental"
+  ],
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "title": "Endpoint",
+      "description": "The entity to be queried",
+      "enum": [],
+      "format": "select",
+      "options": {
+        "async": {
+          "label": "Re-load endpoints",
+          "action": "list_endpoints"
+        }
+      },
+      "propertyOrder": 300
+    },
+    "query": {
+      "type": "string",
+      "title": "Query (advanced)",
+      "format": "textarea",
+      "options": {
+        "input_height": "100px"
+      },
+      "description": "A Microsoft Web API query, which will be sent along with the request. All pieces of query can be separated by new-line or \"&\".</br>Please, refer to <a href='https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/webapi/query-data-web-api'>this article</a> explaining how to use the querying language.",
+      "propertyOrder": 400
+    },
+    "destination": {
+      "type": "object",
+      "title": "Destination",
+      "propertyOrder": 600,
+      "required": [
+        "table_name",
+        "incremental_loading"
+      ],
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "title": "Storage Table Name",
+          "propertyOrder": 10,
+          "minLength": 1,
+          "description": "Name of the destination table for this query. I left empty, object name is used."
+        },
+        "incremental": {
+          "enum": [
+            false,
+            true
+          ],
+          "type": "boolean",
+          "title": "Load Type",
+          "default": true,
+          "options": {
+            "enum_titles": [
+              "Full Load",
+              "Incremental Load"
+            ]
+          },
+          "description": "If Full load is used, the destination table will be overwritten every run. If Incremental Load is used, data will be upserted into the destination table.",
+          "propertyOrder": 30
+        }
+      }
+    }
+  }
+}

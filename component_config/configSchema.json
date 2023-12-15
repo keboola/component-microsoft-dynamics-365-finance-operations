@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "title": "API Settings",
+  "required": [
+    "organization_url",
+    "api_version"
+  ],
+  "properties": {
+    "organization_url": {
+      "type": "string",
+      "title": "Organization URL",
+      "minLength": 20,
+      "description": "URL to the CRM system located in the Dynamics 365 cloud. Usually in format <a href='https://<organization>.crm.dynamics.com'>https://&ltorganization&gt.crm.dynamics.com</a>.",
+      "propertyOrder": 100
+    },
+     "test_connection": {
+          "type": "button",
+          "format": "test-connection",
+          "propertyOrder": 500
+        }
+  }
+}

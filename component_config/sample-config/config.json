@@ -1,0 +1,28 @@
+{
+  "parameters": {
+    "organization_url": "https://keboolads.crm4.dynamics.com/",
+    "api_version": "v9.1",
+    "endpoint": "contacts",
+    "query": "$select=contactid,fullname,lastname\n$filter=contains(name,'test')",
+    "incremental": true
+  },
+  "image_parameters": {},
+  "authorization": {
+    "oauth_api": {
+      "id": "OAUTH_API_ID",
+      "credentials": {
+        "id": "main",
+        "authorizedFor": "Myself",
+        "creator": {
+          "id": "1234",
+          "description": "me@keboola.com"
+        },
+        "created": "2020-01-01 00:13:30",
+        "#data": "{ \"token_type\": \"Bearer\", \"scope\": \"user_impersonation\", \"expires_in\": \"3599\", \"ext_expires_in\": \"3599\", \"expires_on\": \"1579274445\", \"not_before\": \"1579270545\", \"resource\": \"https://keboolads.crm4.dynamics.com/\", \"access_token\": \"<ACCESS_TOKEN>\", \"refresh_token\": \"<REFRESH_TOKEN>\" }",
+        "oauthVersion": "2.0",
+        "appKey": "<CLIENT_ID>",
+        "#appSecret": "<CLIENT_SECRET>"
+      }
+    }
+  }
+}
