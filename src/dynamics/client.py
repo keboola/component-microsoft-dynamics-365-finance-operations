@@ -118,14 +118,14 @@ class DynamicsClient(HttpClient):
 
         except requests.HTTPError as e:
 
-            _err_msg = response.json()['error']['message']
+            _err_msg = response.json().get('error', {})
 
-            if 'Could not find a property named' in _err_msg:
+            if _err_msg and 'Could not find a property named' in _err_msg:
                 _add_msg = 'When querying foreign key fields, do not forget to ommit "fk" part of the field, e.g. ' + \
                            '"fk_accountid" -> "_accountid". Please, refer to the documentation for more information.'
 
             else:
-                _add_msg = ''
+                _add_msg = response.text
 
             raise UserException(''.join([f"Could not query endpoint \"{endpoint}\". ",
                                          f"Received: {response.status_code} - {_err_msg} ",
