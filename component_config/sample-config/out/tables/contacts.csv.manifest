@@ -1,0 +1,1 @@
+{"primary_key": ["contactid"], "incremental": true, "columns": ["fullname", "lastname", "contactid"]}
