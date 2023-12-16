@@ -125,11 +125,11 @@ class DynamicsClient(HttpClient):
                            '"fk_accountid" -> "_accountid". Please, refer to the documentation for more information.'
 
             else:
-                _add_msg = response.text
+                _add_msg = ''
 
             raise UserException(''.join([f"Could not query endpoint \"{endpoint}\". ",
-                                         f"Received: {response.status_code} - {_err_msg} ",
-                                         _add_msg])) from e
+                                         f"Received: {response.status_code} - {_err_msg.get('message')} ",
+                                         _add_msg]), _err_msg) from e
 
     def list_columns(self, endpoint):
         """

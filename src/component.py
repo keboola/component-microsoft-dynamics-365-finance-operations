@@ -123,7 +123,12 @@ if __name__ == "__main__":
         # this triggers the run method by default and is controlled by the configuration.action parameter
         comp.execute_action()
     except UserException as exc:
-        logging.exception(exc)
+        detail = ''
+        if len(exc.args) > 1:
+            # remove extra argument to make logging.exception log properly
+            detail = exc.args[1]
+            exc.args = exc.args[:1]
+        logging.exception(exc, extra={"additional_detail": detail})
         exit(1)
     except Exception as exc:
         logging.exception(exc)
