@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from keboola.component import ComponentBase, UserException
 from keboola.component.base import sync_action
@@ -106,12 +107,19 @@ class Component(ComponentBase):
         self.init_client()
         self.__init_configuration()
         columns = self._client.list_columns(self.cfg.endpoint)
-        return [SelectElement(el) for el in columns]
+        return [SelectElement(value=f"{el['Name']}", label=f"{el['Name']} [{el['Type']}]") for el in columns]
 
     @sync_action('testConnection')
     def test_connection(self):
         self.init_client()
         self._client.list_entity_metadata()
+
+    @sync_action('generate_schema')
+    def generate_schema(self):
+        self.init_client()
+        self.__init_configuration()
+        endpoints = self._client.list_columns_from_metadata()
+        json.dump(endpoints, open(os.path.join(self.files_out_path, 'schema.json'), 'w+'))
 
 
 """

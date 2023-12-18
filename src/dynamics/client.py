@@ -167,7 +167,7 @@ class DynamicsClient(HttpClient):
 
             dataset_name = entity_metadata_mapping[entity_name]['PublicCollectionName']
             column_names[dataset_name] = {}
-            column_names[dataset_name]['columns'] = [p.attrib['Name'] for p in
+            column_names[dataset_name]['columns'] = [p.attrib for p in
                                                      entity_type.findall(
                                                          '{http://docs.oasis-open.org/odata/ns/edm}Property')]
 
