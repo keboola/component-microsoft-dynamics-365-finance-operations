@@ -7,7 +7,7 @@ class DynamicsWriter:
 
     def __init__(self, output_path: str):
 
-        self.parFullTablePath = output_path
+        self.full_table_path = output_path
         self.__column_map = None
         self.__writer: csv.DictWriter = None
         self.__out_stream = None
@@ -15,25 +15,25 @@ class DynamicsWriter:
     def set_column_map(self, object_data: dict):
         if not self.__column_map:
 
-            allColumns = []
+            all_columns = []
 
             for o in object_data:
-                allColumns += o.keys()
+                all_columns += o.keys()
 
-            allColumns = list(set(allColumns))
-            mapColumns = {}
+            all_columns = list(all_columns)
+            map_columns = {}
 
-            for column in allColumns:
+            for column in all_columns:
                 if column.startswith('_') is True:
-                    mapColumns[column] = self._get_valid_kbc_storage_name(column)
+                    map_columns[column] = self._get_valid_kbc_storage_name(column)
                 elif self._is_formatted_value_column(column):
-                    mapColumns[column] = self._get_shortened_formatted_value_column_name(column)
+                    map_columns[column] = self._get_shortened_formatted_value_column_name(column)
                 elif '@odata' in column:
                     continue
                 else:
-                    mapColumns[column] = column
+                    map_columns[column] = column
 
-            self.__column_map = mapColumns
+            self.__column_map = map_columns
 
     def _get_valid_kbc_storage_name(self, column_name):
         if not self._is_formatted_value_column(column_name):
@@ -52,12 +52,10 @@ class DynamicsWriter:
         return f"{name_with_removed_formatted_value}_formattedValue"
 
     def _get_writer(self, columns: list[str]) -> csv.DictWriter:
-        self.__out_stream = open(self.parFullTablePath, 'w+')
         if not self.__writer:
+            self.__out_stream = open(self.full_table_path, 'w+')
             self.__writer = csv.DictWriter(self.__out_stream,
-                                           fieldnames=columns,
-                                           restval='', extrasaction='ignore',
-                                           quotechar='"', quoting=csv.QUOTE_ALL)
+                                           fieldnames=columns, extrasaction='ignore')
         return self.__writer
 
     def get_result_columns(self) -> list[str]:
@@ -65,7 +63,7 @@ class DynamicsWriter:
 
     def writerows(self, data_to_write: dict):
         self.set_column_map(data_to_write)
-        self._get_writer(self.__column_map.keys()).writerows(data_to_write)
+        self._get_writer(list(self.__column_map.keys())).writerows(data_to_write)
 
     def close(self):
         if self.__out_stream:
