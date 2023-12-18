@@ -57,8 +57,8 @@ class Component(ComponentBase):
                 total_rows += len(_results)
                 writer.writerows(_results)
                 _has_more = True if _next_link else False
-
-            logging.info(f"Downloaded {total_rows} rows so far.")
+            if total_rows % 2000 == 0:
+                logging.info(f"Downloaded {total_rows} rows so far.")
 
         logging.info(f"Made {_req_count} requests to the API in total for endpoint \"{self.cfg.endpoint}\". "
                      f"Downloaded total {total_rows} rows")
