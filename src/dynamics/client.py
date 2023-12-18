@@ -12,14 +12,15 @@ from urllib3.util.retry import Retry
 class DynamicsClient(HttpClient):
     MSFT_LOGIN_URL = 'https://login.microsoftonline.com/common/oauth2/token'
     MAX_RETRIES = 7
-    PAGE_SIZE = 5000
+    PAGE_SIZE = 2000
 
-    def __init__(self, client_id, client_secret, resource_url, refresh_token):
+    def __init__(self, client_id, client_secret, resource_url, refresh_token, max_page_size: int = PAGE_SIZE):
 
         self.client_id = client_id
         self.client_secret = client_secret
         self.resource_url = os.path.join(resource_url, '')
         self._refresh_token = refresh_token
+        self._max_page_size = max_page_size
         _accessToken = self.refresh_token()
         super().__init__(base_url=os.path.join(resource_url, 'data'), max_retries=self.MAX_RETRIES, auth_header={
             'Authorization': f'Bearer {_accessToken}'
@@ -93,7 +94,7 @@ class DynamicsClient(HttpClient):
 
     def download_data(self, endpoint, query=None, next_link_url=None):
 
-        prefer_value = f"odata.maxpagesize={self.PAGE_SIZE}"
+        prefer_value = f"odata.maxpagesize={self._max_page_size}"
 
         headers_query = {
             'Prefer': prefer_value
