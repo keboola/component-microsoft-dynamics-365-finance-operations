@@ -1,8 +1,12 @@
-version: "2"
+version: "3.2"
 services:
   # for development purposes
   dev:
     build: .
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     volumes:
         - ./:/code
         - ./data:/data

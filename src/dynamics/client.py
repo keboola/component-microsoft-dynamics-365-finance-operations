@@ -156,7 +156,7 @@ class DynamicsClient(HttpClient):
 
         return columns
 
-    def list_columns_from_metadata(self) -> dict:
+    def list_columns_from_metadata(self, filter_dataset: str = None) -> dict:
         """
         Get column names indexed by available datasets,
             e.g. {"dataset": "columns":["col1","col2"], "primary_keys":["col1"]}
@@ -188,5 +188,8 @@ class DynamicsClient(HttpClient):
                     '{http://docs.oasis-open.org/odata/ns/edm}PropertyRef')]
             else:
                 column_names[dataset_name]['primary_key'] = []
+
+            if filter_dataset and dataset_name == filter_dataset:
+                break
 
         return column_names

@@ -1,3 +1,4 @@
+import gc
 import json
 import logging
 import os
@@ -107,6 +108,8 @@ class Component(ComponentBase):
         self.init_client()
         self.__init_configuration()
         columns = self._client.list_columns(self.cfg.endpoint)
+        # to prevent oom
+        gc.collect()
         return [SelectElement(value=f"{el['Name']}",
                               label=f"{el['Name']} [{'PK, ' if el.get('is_pkey') else ''}"
                                     f"{el['Type']}]") for el in columns]
