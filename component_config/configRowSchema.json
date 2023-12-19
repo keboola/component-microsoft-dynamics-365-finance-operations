@@ -21,9 +21,24 @@
       },
       "propertyOrder": 300
     },
+    "columns": {
+      "type": "string",
+      "title": "Columns",
+      "description": "Select columns to be downloaded (if left empty all columns are fetched)",
+      "enum": [],
+      "format": "select",
+      "options": {
+        "async": {
+          "label": "Re-load columns",
+          "action": "list_columns"
+        }
+      },
+      "propertyOrder": 310
+    },
+
     "query": {
       "type": "string",
-      "title": "Query (advanced)",
+      "title": "Query (Expert option)",
       "format": "textarea",
       "options": {
         "input_height": "100px"

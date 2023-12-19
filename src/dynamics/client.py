@@ -92,7 +92,7 @@ class DynamicsClient(HttpClient):
         except requests.HTTPError as e:
             raise e
 
-    def download_data(self, endpoint, query=None, next_link_url=None):
+    def download_data(self, endpoint: str, columns: list[str], query=None, next_link_url=None):
 
         prefer_value = f"odata.maxpagesize={self._max_page_size}"
 
@@ -101,15 +101,21 @@ class DynamicsClient(HttpClient):
         }
 
         if next_link_url:
-            url_query = next_link_url
+            full_url = next_link_url
 
         else:
-            url_query = os.path.join(self.base_url, endpoint)
+            full_url = os.path.join(self.base_url, endpoint)
+            query_parts = list()
+            if columns:
+                query_parts.append(f"$select={','.join(columns)}")
 
-            if query is not None and query != '':
-                url_query += '?' + query
+            if query:
+                query_parts.append(query)
 
-        response = self.get_raw(url_query, headers=headers_query, is_absolute_path=True)
+            if query_parts:
+                full_url = f"{full_url}?{'&'.join(query_parts)}"
+
+        response = self.get_raw(full_url, headers=headers_query, is_absolute_path=True)
         try:
             response.raise_for_status()
             json_data = response.json()
@@ -143,7 +149,12 @@ class DynamicsClient(HttpClient):
         """
 
         col_metadata = self.list_columns_from_metadata()
-        return col_metadata[endpoint]['columns']
+        columns = col_metadata[endpoint]['columns']
+        for col in columns:
+            if col['Name'] in col_metadata[endpoint]['primary_key']:
+                col['is_pkey'] = True
+
+        return columns
 
     def list_columns_from_metadata(self) -> dict:
         """

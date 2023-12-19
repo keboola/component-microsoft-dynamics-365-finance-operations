@@ -48,7 +48,7 @@ class Component(ComponentBase):
         while _has_more is True:
 
             _req_count += 1
-            _results, _next_link = self._client.download_data(self.cfg.endpoint,
+            _results, _next_link = self._client.download_data(self.cfg.endpoint, self.cfg.columns,
                                                               next_link_url=_next_link)  # noqa
 
             if len(_results) == 0:
@@ -107,7 +107,9 @@ class Component(ComponentBase):
         self.init_client()
         self.__init_configuration()
         columns = self._client.list_columns(self.cfg.endpoint)
-        return [SelectElement(value=f"{el['Name']}", label=f"{el['Name']} [{el['Type']}]") for el in columns]
+        return [SelectElement(value=f"{el['Name']}",
+                              label=f"{el['Name']} [{'PK, ' if el.get('is_pkey') else ''}"
+                                    f"{el['Type']}]") for el in columns]
 
     @sync_action('testConnection')
     def test_connection(self):
