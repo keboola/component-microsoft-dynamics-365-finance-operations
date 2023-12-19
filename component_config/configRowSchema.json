@@ -24,7 +24,7 @@
     "columns": {
       "type": "array",
       "title": "Columns",
-      "description": "Select columns to be downloaded (if left empty all columns are fetched)",
+      "description": "Select columns to be downloaded (if left empty, all columns are fetched)",
       "items": {
         "enum": [],
         "type": "string"
