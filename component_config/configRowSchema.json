@@ -22,20 +22,26 @@
       "propertyOrder": 300
     },
     "columns": {
-      "type": "string",
+      "type": "array",
       "title": "Columns",
       "description": "Select columns to be downloaded (if left empty all columns are fetched)",
-      "enum": [],
+      "items": {
+        "enum": [],
+        "type": "string"
+      },
       "format": "select",
+      "uniqueItems": true,
       "options": {
         "async": {
           "label": "Re-load columns",
           "action": "list_columns"
+        },
+        "inputAttributes": {
+          "placeholder": "Download all columns"
         }
       },
       "propertyOrder": 310
     },
-
     "query": {
       "type": "string",
       "title": "Query (Expert option)",

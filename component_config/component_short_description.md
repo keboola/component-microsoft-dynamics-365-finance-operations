@@ -1,1 +1,1 @@
-Microsoft Dynamics is a line of enterprise resource planning and customer relationship management software applications.
+Microsoft Dynamics 365 for Finance and Operations is an enterprise resource planning (ERP) solution developed by Microsoft.

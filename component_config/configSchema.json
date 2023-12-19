@@ -9,7 +9,7 @@
       "type": "string",
       "title": "Organization URL",
       "minLength": 20,
-      "description": "URL is located in the Dynamics 365 cloud. Usually in format https://[ORGANIZATION].operations.dynamics.com.",
+      "description": "Your organization's root URL. Usually in format https://[ORGANIZATION].operations.dynamics.com.",
       "propertyOrder": 100
     },
     "test_connection": {
