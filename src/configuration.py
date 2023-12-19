@@ -43,4 +43,5 @@ class Configuration(ConfigurationBase):
     organization_url: str
     endpoint: str
     destination: Destination
+    columns: list[str] = dataclasses.field(default_factory=list)
     debug: bool = False
