@@ -36,7 +36,7 @@ for more information.
 
 1. Select the desired endpoint.
 2. (Optional) If required, filter only selected columns.
-3. (Optional) Define the OData request query. This is an expert option to provide more flexibility; use it at your own risk. All query pieces can be separated by a newline or "&". Please refer to [this article](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System) on how to use the Odata filter.
+3. (Optional) Define the OData request query. This is an expert option to provide more flexibility; use it at your own risk. All query pieces can be separated by a newline or "&". Please refer to [this article](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System) for details about the Odata filter.
 
 
 ### Destination / Output

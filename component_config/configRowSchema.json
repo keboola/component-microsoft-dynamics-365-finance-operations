@@ -49,7 +49,7 @@
       "options": {
         "input_height": "100px"
       },
-      "description": "A Microsoft OData query will be sent along with the request. All query pieces can be separated by a newline or \"&\".</br>Please refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> on how to use the Odata filter.",
+      "description": "A Microsoft OData query will be sent along with the request. All query pieces can be separated by a newline or \"&\".</br>Please refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> for details about the Odata filter.",
       "propertyOrder": 400
     },
     "destination": {
