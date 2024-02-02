@@ -24,7 +24,7 @@
     "columns": {
       "type": "array",
       "title": "Columns",
-      "description": "Select columns to be downloaded (if left empty, all columns are fetched)",
+      "description": "Select the columns to be downloaded (if left empty, all columns are fetched).",
       "items": {
         "enum": [],
         "type": "string"
@@ -49,7 +49,7 @@
       "options": {
         "input_height": "100px"
       },
-      "description": "A Microsoft OData query, which will be sent along with the request. All pieces of query can be separated by new-line or \"&\".</br>Please, refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> explaining how to use the Odata filter.",
+      "description": "A Microsoft OData query will be sent along with the request. All query pieces can be separated by a newline or \"&\".</br>Please refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> for details about the Odata filter.",
       "propertyOrder": 400
     },
     "destination": {
@@ -62,9 +62,9 @@
       "properties": {
         "table_name": {
           "type": "string",
-          "title": "Storage Table Name",
+          "title": "Storage table name",
           "propertyOrder": 10,
-          "description": "Name of the destination table for this query. I left empty, object name is used."
+          "description": "Name of the destination table for this query. If left empty, the object name is used."
         },
         "incremental": {
           "enum": [
@@ -80,7 +80,7 @@
               "Incremental Load"
             ]
           },
-          "description": "If Full load is used, the destination table will be overwritten every run. If Incremental Load is used, data will be upserted into the destination table.",
+          "description": "If full load is used, the destination table will be overwritten every run. If incremental load is used, data will be upserted into the destination table.",
           "propertyOrder": 30
         }
       }
