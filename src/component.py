@@ -11,6 +11,9 @@ from configuration import Configuration
 from dynamics.client import DynamicsClient
 from dynamics.result import DynamicsWriter
 
+STATE_AUTH_ID = "auth_id"
+STATE_REFRESH_TOKEN = "#refresh_token"
+
 
 class Component(ComponentBase):
 
@@ -83,10 +86,24 @@ class Component(ComponentBase):
         if not credentials:
             raise UserException("The configuration is not authorized. Please authorize it first.")
 
-        refresh_token = credentials.data['refresh_token']
+        refresh_token = self.get_state_file().get(STATE_REFRESH_TOKEN, [])
+        auth_id = self.get_state_file().get(STATE_AUTH_ID, [])
+
+        if refresh_token and auth_id == credentials["id"]:
+            logging.info("Refresh token loaded from state file")
+
+        else:
+            refresh_token = credentials.data['refresh_token']
+            logging.info("Refresh token loaded from authorization")
+
         self._client = DynamicsClient(credentials.appKey,
                                       credentials.appSecret, organization_url,
                                       refresh_token)
+
+        self.write_state_file({
+            STATE_REFRESH_TOKEN: self._client.refresh_token,
+            STATE_AUTH_ID: credentials["id"]
+        })
 
     def __init_configuration(self):
         try:
