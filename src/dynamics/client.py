@@ -19,14 +19,14 @@ class DynamicsClient(HttpClient):
         self.client_id = client_id
         self.client_secret = client_secret
         self.resource_url = os.path.join(resource_url, '')
-        self._refresh_token = refresh_token
+        self.refresh_token = refresh_token
         self._max_page_size = max_page_size
-        _accessToken = self.refresh_token()
+        _accessToken = self.refresh_tokens()
         super().__init__(base_url=os.path.join(resource_url, 'data'), max_retries=self.MAX_RETRIES, auth_header={
             'Authorization': f'Bearer {_accessToken}'
         })
 
-    def refresh_token(self):
+    def refresh_tokens(self):
 
         headers_refresh = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,13 +38,20 @@ class DynamicsClient(HttpClient):
             'grant_type': 'refresh_token',
             'client_secret': self.client_secret,
             'resource': self.resource_url,
-            'refresh_token': self._refresh_token
+            'refresh_token': self.refresh_token
         }
 
         resp = requests.post(self.MSFT_LOGIN_URL, headers=headers_refresh, data=body_refresh)
         code, response_json = resp.status_code, resp.json()
 
         if code == 200:
+
+            if response_json.get('refresh_token', None):
+                self.refresh_token = response_json.get('refresh_token')
+
+                logging.info(f"New access token expires in {response_json.get('expires_in', '')} s"
+                             f"New refresh token expires in {response_json.get('refresh_token_expires_in', '')} s")
+
             logging.debug("Access token refreshed successfully.")
             return response_json['access_token']
 
@@ -54,7 +61,7 @@ class DynamicsClient(HttpClient):
     def __response_hook(self, res, *args, **kwargs):
 
         if res.status_code == 401:
-            token = self._refresh_token()
+            token = self.refresh_tokens()
             self.update_auth_header({"Authorization": f'Bearer {token}'})
 
             res.request.headers['Authorization'] = f'Bearer {token}'
