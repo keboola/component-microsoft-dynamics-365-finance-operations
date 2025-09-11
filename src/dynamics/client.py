@@ -132,7 +132,10 @@ class DynamicsClient(HttpClient):
 
         except requests.HTTPError as e:
 
-            _err_msg = response.json().get('error', {})
+            try:
+                _err_msg = response.json().get('error', {})
+            except requests.exceptions.JSONDecodeError:
+                _err_msg = {'message': response.text}
 
             if _err_msg and 'Could not find a property named' in _err_msg:
                 _add_msg = 'When querying foreign key fields, do not forget to ommit "fk" part of the field, e.g. ' + \
