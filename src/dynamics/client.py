@@ -79,17 +79,12 @@ class DynamicsClient(HttpClient):
         if response.status_code != 401:
             return response
 
-        logging.info("Get 401 - refreshing token and retrying")
+        logging.info("Received HTTP 401 response. Refreshing token and retrying.")
         try:
             token = self.refresh_tokens()
             self.update_auth_header({"Authorization": f"Bearer {token}"})
         except Exception:
             raise UserException("Failed to refresh access token.")
-
-        try:
-            response.close()
-        except Exception:
-            pass
 
         return super().get_raw(*args, **kwargs)
 
