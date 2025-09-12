@@ -58,16 +58,6 @@ class DynamicsClient(HttpClient):
         else:
             raise UserException(f"Could not refresh access token. Received {code} - {response_json}.")
 
-    def __response_hook(self, res, *args, **kwargs):
-
-        if res.status_code == 401:
-            token = self.refresh_tokens()
-            self.update_auth_header({"Authorization": f'Bearer {token}'})
-
-            res.request.headers['Authorization'] = f'Bearer {token}'
-            s = requests.Session()
-            return self.requests_retry_session(session=s).send(res.request)
-
     def requests_retry_session(self, session=None):
 
         session = session or requests.Session()
@@ -82,9 +72,21 @@ class DynamicsClient(HttpClient):
         adapter = HTTPAdapter(max_retries=retry)
         session.mount('http://', adapter)
         session.mount('https://', adapter)
-        # append response hook
-        session.hooks['response'].append(self.__response_hook)
         return session
+
+    def get_raw(self, *args, **kwargs):
+        response = super().get_raw(*args, **kwargs)
+        if response.status_code != 401:
+            return response
+
+        logging.info("Received HTTP 401 response. Refreshing token and retrying.")
+        try:
+            token = self.refresh_tokens()
+            self.update_auth_header({"Authorization": f"Bearer {token}"})
+        except Exception:
+            raise UserException("Failed to refresh access token.")
+
+        return super().get_raw(*args, **kwargs)
 
     def list_entity_metadata(self) -> dict:
 
@@ -132,7 +134,10 @@ class DynamicsClient(HttpClient):
 
         except requests.HTTPError as e:
 
-            _err_msg = response.json().get('error', {})
+            try:
+                _err_msg = response.json().get('error', {})
+            except requests.exceptions.JSONDecodeError:
+                _err_msg = {'message': response.text}
 
             if _err_msg and 'Could not find a property named' in _err_msg:
                 _add_msg = 'When querying foreign key fields, do not forget to ommit "fk" part of the field, e.g. ' + \
