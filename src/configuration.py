@@ -44,4 +44,7 @@ class Configuration(ConfigurationBase):
     endpoint: str
     destination: Destination
     columns: list[str] = dataclasses.field(default_factory=list)
+    query: str = ''
+    incremental_field: str = ''
+    initial_since: str = ''
     debug: bool = False

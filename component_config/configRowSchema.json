@@ -52,6 +52,18 @@
       "description": "A Microsoft OData query will be sent along with the request. All query pieces can be separated by a newline or \"&\".</br>Please refer to <a href='https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_The_$filter_System'>this article</a> for details about the Odata filter.",
       "propertyOrder": 400
     },
+    "incremental_field": {
+      "type": "string",
+      "title": "Incremental Field",
+      "description": "Field to use for time-based incremental loading (e.g. ModifiedDateTime). Will filter records greater than the last run time.",
+      "propertyOrder": 450
+    },
+    "initial_since": {
+      "type": "string",
+      "title": "Initial Since Value",
+      "description": "Starting date/time for the first run (e.g. 2024-01-01T00:00:00Z). Subsequent runs will use the last run time from state.",
+      "propertyOrder": 460
+    },
     "destination": {
       "type": "object",
       "title": "Destination",

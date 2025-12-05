@@ -101,7 +101,8 @@ class DynamicsClient(HttpClient):
         except requests.HTTPError as e:
             raise e
 
-    def download_data(self, endpoint: str, columns: list[str], query=None, next_link_url=None):
+    def download_data(self, endpoint: str, columns: list[str], query=None, next_link_url=None,
+                      incremental_field: str = None, incremental_value: str = None):
 
         prefer_value = f"odata.maxpagesize={self._max_page_size}"
 
@@ -117,6 +118,11 @@ class DynamicsClient(HttpClient):
             query_parts = list()
             if columns:
                 query_parts.append(f"$select={','.join(columns)}")
+
+            # Add incremental filter if specified
+            if incremental_field and incremental_value:
+                formatted_value = self._format_filter_value(incremental_value)
+                query_parts.append(f"$filter={incremental_field} gt {formatted_value}")
 
             if query:
                 query_parts.append(query)
@@ -149,6 +155,14 @@ class DynamicsClient(HttpClient):
             raise UserException(''.join([f"Could not query endpoint \"{endpoint}\". ",
                                          f"Received: {response.status_code} - {_err_msg.get('message')} ",
                                          _add_msg]), _err_msg) from e
+
+    def _format_filter_value(self, value: str) -> str:
+        """Format value for OData $filter: ISO datetimes unquoted, strings quoted."""
+        # ISO 8601 datetime (e.g. "2024-12-05T13:00:00Z") - use as-is
+        if value and len(value) >= 10 and value[4] == '-' and value[7] == '-':
+            return value
+        # Regular string - escape and quote
+        return f"'{value.replace('\'', '\'\'')}'"
 
     def list_columns(self, endpoint):
         """

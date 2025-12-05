@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime, timezone
 
 from keboola.component import ComponentBase, UserException
 from keboola.component.base import sync_action
@@ -31,6 +32,13 @@ class Component(ComponentBase):
 
         logging.info(f"Downloading data for endpoint \"{self.cfg.endpoint}\".")
 
+        state = self.get_state_file()
+        incremental_field = self.cfg.incremental_field or None
+        incremental_value = state.get('last_run') or self.cfg.initial_since or None
+
+        if incremental_field and incremental_value:
+            logging.info(f"Using time-based filtering with field '{incremental_field}' since '{incremental_value}'")
+
         _has_more = True
         _next_link = None
         _req_count = 0
@@ -51,8 +59,14 @@ class Component(ComponentBase):
         while _has_more is True:
 
             _req_count += 1
-            _results, _next_link = self._client.download_data(self.cfg.endpoint, self.cfg.columns,
-                                                              next_link_url=_next_link)  # noqa
+            _results, _next_link = self._client.download_data(
+                self.cfg.endpoint,
+                self.cfg.columns,
+                query=self.cfg.query,
+                next_link_url=_next_link,
+                incremental_field=incremental_field,
+                incremental_value=incremental_value
+            )
 
             if len(_results) == 0:
                 _has_more = False
@@ -70,6 +84,12 @@ class Component(ComponentBase):
             writer.close()
             res_table.columns = writer.get_result_columns()
             self.write_manifest(res_table)
+
+        self.write_state_file({
+            STATE_REFRESH_TOKEN: state.get(STATE_REFRESH_TOKEN),
+            STATE_AUTH_ID: state.get(STATE_AUTH_ID),
+            'last_run': datetime.now(timezone.utc).isoformat()
+        })
 
     def init_client(self):
         organization_url = self.configuration.parameters.get('organization_url')
