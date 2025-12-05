@@ -17,24 +17,21 @@ STATE_REFRESH_TOKEN = "#refresh_token"
 
 
 class Component(ComponentBase):
-
     def __init__(self):
-
         super().__init__()
 
         self.cfg: Configuration
         self._client: DynamicsClient = None
 
     def run(self):
-
         self.__init_configuration()
         self.init_client()
 
-        logging.info(f"Downloading data for endpoint \"{self.cfg.endpoint}\".")
+        logging.info(f'Downloading data for endpoint "{self.cfg.endpoint}".')
 
         state = self.get_state_file()
         incremental_field = self.cfg.incremental_field or None
-        incremental_value = state.get('last_run') or self.cfg.initial_since or None
+        incremental_value = state.get("last_run") or self.cfg.initial_since or None
 
         if incremental_field and incremental_value:
             logging.info(f"Using time-based filtering with field '{incremental_field}' since '{incremental_value}'")
@@ -43,21 +40,20 @@ class Component(ComponentBase):
         _next_link = None
         _req_count = 0
         column_metadata = self._client.list_columns_from_metadata()
-        _pk = column_metadata[self.cfg.endpoint]['primary_key']
+        _pk = column_metadata[self.cfg.endpoint]["primary_key"]
         if not self.cfg.destination.table_name:
-            res_name = f'{self.cfg.endpoint}.csv'
+            res_name = f"{self.cfg.endpoint}.csv"
         else:
-            res_name = f'{self.cfg.destination.table_name}.csv'
+            res_name = f"{self.cfg.destination.table_name}.csv"
 
-        res_table = self.create_out_table_definition(res_name,
-                                                     primary_key=_pk,
-                                                     incremental=self.cfg.destination.incremental)
+        res_table = self.create_out_table_definition(
+            res_name, primary_key=_pk, incremental=self.cfg.destination.incremental
+        )
 
         writer = DynamicsWriter(res_table.full_path)
 
         total_rows = 0
         while _has_more is True:
-
             _req_count += 1
             _results, _next_link = self._client.download_data(
                 self.cfg.endpoint,
@@ -65,7 +61,7 @@ class Component(ComponentBase):
                 query=self.cfg.query,
                 next_link_url=_next_link,
                 incremental_field=incremental_field,
-                incremental_value=incremental_value
+                incremental_value=incremental_value,
             )
 
             if len(_results) == 0:
@@ -77,29 +73,33 @@ class Component(ComponentBase):
             if total_rows % 2000 == 0:
                 logging.info(f"Downloaded {total_rows} rows so far.")
 
-        logging.info(f"Made {_req_count} requests to the API in total for endpoint \"{self.cfg.endpoint}\". "
-                     f"Downloaded total {total_rows} rows")
+        logging.info(
+            f'Made {_req_count} requests to the API in total for endpoint "{self.cfg.endpoint}". '
+            f"Downloaded total {total_rows} rows"
+        )
 
         if total_rows > 0:
             writer.close()
             res_table.columns = writer.get_result_columns()
             self.write_manifest(res_table)
 
-        self.write_state_file({
-            STATE_REFRESH_TOKEN: state.get(STATE_REFRESH_TOKEN),
-            STATE_AUTH_ID: state.get(STATE_AUTH_ID),
-            'last_run': datetime.now(timezone.utc).isoformat()
-        })
+        self.write_state_file(
+            {
+                STATE_REFRESH_TOKEN: state.get(STATE_REFRESH_TOKEN),
+                STATE_AUTH_ID: state.get(STATE_AUTH_ID),
+                "last_run": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     def init_client(self):
-        organization_url = self.configuration.parameters.get('organization_url')
+        organization_url = self.configuration.parameters.get("organization_url")
         if not organization_url:
-            raise UserException('You must fill in the Organization URL')
+            raise UserException("You must fill in the Organization URL")
 
-        if custom_creds := self.configuration.parameters.get('custom_credentials'):
-            credentials = OauthCredentials('', '', json.loads(custom_creds['#data']), '',
-                                           custom_creds['appKey'],
-                                           custom_creds['#appSecret'])
+        if custom_creds := self.configuration.parameters.get("custom_credentials"):
+            credentials = OauthCredentials(
+                "", "", json.loads(custom_creds["#data"]), "", custom_creds["appKey"], custom_creds["#appSecret"]
+            )
         else:
             credentials = self.configuration.oauth_credentials
 
@@ -113,52 +113,51 @@ class Component(ComponentBase):
             logging.info("Refresh token loaded from state file")
 
         else:
-            refresh_token = credentials.data['refresh_token']
+            refresh_token = credentials.data["refresh_token"]
             logging.info("Refresh token loaded from authorization")
 
-        self._client = DynamicsClient(credentials.appKey,
-                                      credentials.appSecret, organization_url,
-                                      refresh_token)
+        self._client = DynamicsClient(credentials.appKey, credentials.appSecret, organization_url, refresh_token)
 
-        self.write_state_file({
-            STATE_REFRESH_TOKEN: self._client.refresh_token,
-            STATE_AUTH_ID: credentials["id"]
-        })
+        self.write_state_file({STATE_REFRESH_TOKEN: self._client.refresh_token, STATE_AUTH_ID: credentials["id"]})
 
     def __init_configuration(self):
         try:
-            self._validate_parameters(self.configuration.parameters, Configuration.get_dataclass_required_parameters(),
-                                      'Row')
+            self._validate_parameters(
+                self.configuration.parameters, Configuration.get_dataclass_required_parameters(), "Row"
+            )
         except UserException as e:
             raise UserException(f"{e} The configuration is invalid. Please check that you added a configuration row.")
         self.cfg: Configuration = Configuration.fromDict(parameters=self.configuration.parameters)
 
-    @sync_action('list_endpoints')
+    @sync_action("list_endpoints")
     def list_endpoints(self):
         self.init_client()
         endpoints = self._client.list_entity_metadata()
-        return [SelectElement(el['PublicCollectionName']) for el in endpoints if el['PublicCollectionName']]
+        return [SelectElement(el["PublicCollectionName"]) for el in endpoints if el["PublicCollectionName"]]
 
-    @sync_action('list_columns')
+    @sync_action("list_columns")
     def list_columns(self):
         self.init_client()
         self.__init_configuration()
         columns = self._client.list_columns(self.cfg.endpoint)
-        return [SelectElement(value=f"{el['Name']}",
-                              label=f"{el['Name']} [{'PK, ' if el.get('is_pkey') else ''}"
-                                    f"{el['Type']}]") for el in columns]
+        return [
+            SelectElement(
+                value=f"{el['Name']}", label=f"{el['Name']} [{'PK, ' if el.get('is_pkey') else ''}{el['Type']}]"
+            )
+            for el in columns
+        ]
 
-    @sync_action('testConnection')
+    @sync_action("testConnection")
     def test_connection(self):
         self.init_client()
         self._client.list_entity_metadata()
 
-    @sync_action('generate_schema')
+    @sync_action("generate_schema")
     def generate_schema(self):
         self.init_client()
         self.__init_configuration()
         endpoints = self._client.list_columns_from_metadata()
-        json.dump(endpoints, open(os.path.join(self.files_out_path, 'schema.json'), 'w+'))
+        json.dump(endpoints, open(os.path.join(self.files_out_path, "schema.json"), "w+"))
 
 
 """
@@ -170,7 +169,7 @@ if __name__ == "__main__":
         # this triggers the run method by default and is controlled by the configuration.action parameter
         comp.execute_action()
     except UserException as exc:
-        detail = ''
+        detail = ""
         if len(exc.args) > 1:
             # remove extra argument to make logging.exception log properly
             detail = exc.args[1]

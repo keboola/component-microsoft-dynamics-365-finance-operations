@@ -6,7 +6,6 @@ import dataconf
 
 
 class ConfigurationBase:
-
     @staticmethod
     def fromDict(parameters: dict):
         return dataconf.dict(parameters, Configuration, ignore_unexpected=True)
@@ -14,8 +13,8 @@ class ConfigurationBase:
 
     @staticmethod
     def _convert_private_value_inv(value: str):
-        if value and value.startswith('pswd_'):
-            return value.replace('pswd_', '#', 1)
+        if value and value.startswith("pswd_"):
+            return value.replace("pswd_", "#", 1)
         else:
             return value
 
@@ -26,14 +25,16 @@ class ConfigurationBase:
         Returns: List[str]
 
         """
-        return [cls._convert_private_value_inv(f.name) for f in dataclasses.fields(cls)
-                if f.default == dataclasses.MISSING
-                and f.default_factory == dataclasses.MISSING]
+        return [
+            cls._convert_private_value_inv(f.name)
+            for f in dataclasses.fields(cls)
+            if f.default == dataclasses.MISSING and f.default_factory == dataclasses.MISSING
+        ]
 
 
 @dataclass
 class Destination(ConfigurationBase):
-    table_name: str = ''
+    table_name: str = ""
     primary_key: list[str] = dataclasses.field(default_factory=list)
     incremental: bool = True
 
@@ -44,7 +45,7 @@ class Configuration(ConfigurationBase):
     endpoint: str
     destination: Destination
     columns: list[str] = dataclasses.field(default_factory=list)
-    query: str = ''
-    incremental_field: str = ''
-    initial_since: str = ''
+    query: str = ""
+    incremental_field: str = ""
+    initial_since: str = ""
     debug: bool = False

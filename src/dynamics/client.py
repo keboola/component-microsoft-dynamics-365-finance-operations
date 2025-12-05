@@ -10,56 +10,53 @@ from urllib3.util.retry import Retry
 
 
 class DynamicsClient(HttpClient):
-    MSFT_LOGIN_URL = 'https://login.microsoftonline.com/common/oauth2/token'
+    MSFT_LOGIN_URL = "https://login.microsoftonline.com/common/oauth2/token"
     MAX_RETRIES = 7
     PAGE_SIZE = 2000
 
     def __init__(self, client_id, client_secret, resource_url, refresh_token, max_page_size: int = PAGE_SIZE):
-
         self.client_id = client_id
         self.client_secret = client_secret
-        self.resource_url = os.path.join(resource_url, '')
+        self.resource_url = os.path.join(resource_url, "")
         self.refresh_token = refresh_token
         self._max_page_size = max_page_size
         _accessToken = self.refresh_tokens()
-        super().__init__(base_url=os.path.join(resource_url, 'data'), max_retries=self.MAX_RETRIES, auth_header={
-            'Authorization': f'Bearer {_accessToken}'
-        })
+        super().__init__(
+            base_url=os.path.join(resource_url, "data"),
+            max_retries=self.MAX_RETRIES,
+            auth_header={"Authorization": f"Bearer {_accessToken}"},
+        )
 
     def refresh_tokens(self):
-
-        headers_refresh = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        }
+        headers_refresh = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
 
         body_refresh = {
-            'client_id': self.client_id,
-            'grant_type': 'refresh_token',
-            'client_secret': self.client_secret,
-            'resource': self.resource_url,
-            'refresh_token': self.refresh_token
+            "client_id": self.client_id,
+            "grant_type": "refresh_token",
+            "client_secret": self.client_secret,
+            "resource": self.resource_url,
+            "refresh_token": self.refresh_token,
         }
 
         resp = requests.post(self.MSFT_LOGIN_URL, headers=headers_refresh, data=body_refresh)
         code, response_json = resp.status_code, resp.json()
 
         if code == 200:
+            if response_json.get("refresh_token", None):
+                self.refresh_token = response_json.get("refresh_token")
 
-            if response_json.get('refresh_token', None):
-                self.refresh_token = response_json.get('refresh_token')
-
-                logging.info(f"New access token expires in {response_json.get('expires_in', '')} s"
-                             f"New refresh token expires in {response_json.get('refresh_token_expires_in', '')} s")
+                logging.info(
+                    f"New access token expires in {response_json.get('expires_in', '')} s"
+                    f"New refresh token expires in {response_json.get('refresh_token_expires_in', '')} s"
+                )
 
             logging.debug("Access token refreshed successfully.")
-            return response_json['access_token']
+            return response_json["access_token"]
 
         else:
             raise UserException(f"Could not refresh access token. Received {code} - {response_json}.")
 
     def requests_retry_session(self, session=None):
-
         session = session or requests.Session()
         retry = Retry(
             total=self.max_retries,
@@ -67,11 +64,11 @@ class DynamicsClient(HttpClient):
             connect=self.max_retries,
             backoff_factor=self.backoff_factor,
             status_forcelist=self.status_forcelist,
-            allowed_methods=('GET', 'POST', 'PATCH', 'UPDATE', 'DELETE')
+            allowed_methods=("GET", "POST", "PATCH", "UPDATE", "DELETE"),
         )
         adapter = HTTPAdapter(max_retries=retry)
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
         return session
 
     def get_raw(self, *args, **kwargs):
@@ -89,26 +86,29 @@ class DynamicsClient(HttpClient):
         return super().get_raw(*args, **kwargs)
 
     def list_entity_metadata(self) -> dict:
-
-        url = os.path.join(self.resource_url, 'Metadata/DataEntities')
+        url = os.path.join(self.resource_url, "Metadata/DataEntities")
 
         response = self.get_raw(url, is_absolute_path=True)
         try:
             response.raise_for_status()
             json_data = response.json()
-            return json_data['value']
+            return json_data["value"]
 
         except requests.HTTPError as e:
             raise e
 
-    def download_data(self, endpoint: str, columns: list[str], query=None, next_link_url=None,
-                      incremental_field: str = None, incremental_value: str = None):
-
+    def download_data(
+        self,
+        endpoint: str,
+        columns: list[str],
+        query=None,
+        next_link_url=None,
+        incremental_field: str = None,
+        incremental_value: str = None,
+    ):
         prefer_value = f"odata.maxpagesize={self._max_page_size}"
 
-        headers_query = {
-            'Prefer': prefer_value
-        }
+        headers_query = {"Prefer": prefer_value}
 
         if next_link_url:
             full_url = next_link_url
@@ -134,35 +134,43 @@ class DynamicsClient(HttpClient):
         try:
             response.raise_for_status()
             json_data = response.json()
-            _results = json_data['value']
-            _nextLink = json_data.get('@odata.nextLink', None)
+            _results = json_data["value"]
+            _nextLink = json_data.get("@odata.nextLink", None)
             return _results, _nextLink
 
         except requests.HTTPError as e:
-
             try:
-                _err_msg = response.json().get('error', {})
+                _err_msg = response.json().get("error", {})
             except requests.exceptions.JSONDecodeError:
-                _err_msg = {'message': response.text}
+                _err_msg = {"message": response.text}
 
-            if _err_msg and 'Could not find a property named' in _err_msg:
-                _add_msg = 'When querying foreign key fields, do not forget to ommit "fk" part of the field, e.g. ' + \
-                           '"fk_accountid" -> "_accountid". Please, refer to the documentation for more information.'
+            if _err_msg and "Could not find a property named" in _err_msg:
+                _add_msg = (
+                    'When querying foreign key fields, do not forget to ommit "fk" part of the field, e.g. '
+                    + '"fk_accountid" -> "_accountid". Please, refer to the documentation for more information.'
+                )
 
             else:
-                _add_msg = ''
+                _add_msg = ""
 
-            raise UserException(''.join([f"Could not query endpoint \"{endpoint}\". ",
-                                         f"Received: {response.status_code} - {_err_msg.get('message')} ",
-                                         _add_msg]), _err_msg) from e
+            raise UserException(
+                "".join(
+                    [
+                        f'Could not query endpoint "{endpoint}". ',
+                        f"Received: {response.status_code} - {_err_msg.get('message')} ",
+                        _add_msg,
+                    ]
+                ),
+                _err_msg,
+            ) from e
 
     def _format_filter_value(self, value: str) -> str:
         """Format value for OData $filter: ISO datetimes unquoted, strings quoted."""
         # ISO 8601 datetime (e.g. "2024-12-05T13:00:00Z") - use as-is
-        if value and len(value) >= 10 and value[4] == '-' and value[7] == '-':
+        if value and len(value) >= 10 and value[4] == "-" and value[7] == "-":
             return value
         # Regular string - escape and quote
-        return f"'{value.replace('\'', '\'\'')}'"
+        return f"""'{value.replace("'", "''")}"""
 
     def list_columns(self, endpoint):
         """
@@ -175,10 +183,10 @@ class DynamicsClient(HttpClient):
         """
 
         col_metadata = self.list_columns_from_metadata()
-        columns = col_metadata[endpoint]['columns']
+        columns = col_metadata[endpoint]["columns"]
         for col in columns:
-            if col['Name'] in col_metadata[endpoint]['primary_key']:
-                col['is_pkey'] = True
+            if col["Name"] in col_metadata[endpoint]["primary_key"]:
+                col["is_pkey"] = True
 
         return columns
 
@@ -191,28 +199,28 @@ class DynamicsClient(HttpClient):
         """
         entity_metadata = self.list_entity_metadata()
 
-        entity_metadata_mapping = {e['PublicEntityName']: e for e in entity_metadata
-                                   if e['PublicCollectionName']}
-        response = self.get_raw('$metadata', params={'$format': 'application/atom;odata.metadata=minimal'})
+        entity_metadata_mapping = {e["PublicEntityName"]: e for e in entity_metadata if e["PublicCollectionName"]}
+        response = self.get_raw("$metadata", params={"$format": "application/atom;odata.metadata=minimal"})
 
         root = ET.fromstring(response.text)
         column_names = {}
-        for entity_type in root.findall('.//{http://docs.oasis-open.org/odata/ns/edm}EntityType'):
-            entity_name = entity_type.attrib['Name']
+        for entity_type in root.findall(".//{http://docs.oasis-open.org/odata/ns/edm}EntityType"):
+            entity_name = entity_type.attrib["Name"]
             if entity_name not in entity_metadata_mapping:
                 continue
 
-            dataset_name = entity_metadata_mapping[entity_name]['PublicCollectionName']
+            dataset_name = entity_metadata_mapping[entity_name]["PublicCollectionName"]
             column_names[dataset_name] = {}
-            column_names[dataset_name]['columns'] = [p.attrib for p in
-                                                     entity_type.findall(
-                                                         '{http://docs.oasis-open.org/odata/ns/edm}Property')]
+            column_names[dataset_name]["columns"] = [
+                p.attrib for p in entity_type.findall("{http://docs.oasis-open.org/odata/ns/edm}Property")
+            ]
 
-            keys = entity_type.findall('{http://docs.oasis-open.org/odata/ns/edm}Key')
+            keys = entity_type.findall("{http://docs.oasis-open.org/odata/ns/edm}Key")
             if keys:
-                column_names[dataset_name]['primary_key'] = [p.attrib['Name'] for p in keys[0].findall(
-                    '{http://docs.oasis-open.org/odata/ns/edm}PropertyRef')]
+                column_names[dataset_name]["primary_key"] = [
+                    p.attrib["Name"] for p in keys[0].findall("{http://docs.oasis-open.org/odata/ns/edm}PropertyRef")
+                ]
             else:
-                column_names[dataset_name]['primary_key'] = []
+                column_names[dataset_name]["primary_key"] = []
 
         return column_names
