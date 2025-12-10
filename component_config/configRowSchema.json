@@ -53,9 +53,18 @@
       "propertyOrder": 400
     },
     "incremental_field": {
+      "enum": [],
       "type": "string",
       "title": "Incremental Field",
       "description": "Field to use for time-based incremental loading (e.g. ModifiedDateTime). Will filter records greater than the last run time.",
+      "format": "select",
+      "default": "",
+      "options": {
+        "async": {
+          "label": "Re-load columns",
+          "action": "list_columns"
+        }
+      },
       "propertyOrder": 450
     },
     "initial_since": {
