@@ -1,0 +1,12 @@
+[project]
+name = "component-microsoft-dynamics-365-finance-operations"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "~=3.13.0"
+dependencies = [
+    "dataconf~=2.3.0",
+    "keboola-component==1.4.4",
+    "keboola-http-client==1.0.0",
+    "pyhocon~=0.3.60",
+]
