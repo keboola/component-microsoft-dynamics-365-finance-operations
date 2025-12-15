@@ -33,6 +33,10 @@ class Component(ComponentBase):
         incremental_field = self.cfg.incremental_field or None
         incremental_value = state.get("last_run") or self.cfg.initial_since or None
 
+        # Normalize datetime format for OData compatibility (convert +00:00 to Z)
+        if incremental_value and isinstance(incremental_value, str):
+            incremental_value = incremental_value.replace("+00:00", "Z")
+
         if incremental_field and incremental_value:
             logging.info(f"Using time-based filtering with field '{incremental_field}' since '{incremental_value}'")
 
@@ -87,7 +91,7 @@ class Component(ComponentBase):
             {
                 STATE_REFRESH_TOKEN: state.get(STATE_REFRESH_TOKEN),
                 STATE_AUTH_ID: state.get(STATE_AUTH_ID),
-                "last_run": datetime.now(timezone.utc).isoformat(),
+                "last_run": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             }
         )
 
