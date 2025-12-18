@@ -1,4 +1,0 @@
-keboola.component==1.4.4
-keboola.http-client==1.0.0
-dataconf~=2.3.0
-pyhocon~=0.3.60

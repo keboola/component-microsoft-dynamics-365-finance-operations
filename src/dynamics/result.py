@@ -4,9 +4,7 @@ FORMATTED_VALUE_LABEL = "@OData.Community.Display.V1.FormattedValue"
 
 
 class DynamicsWriter:
-
     def __init__(self, output_path: str):
-
         self.full_table_path = output_path
         self.__column_map = None
         self.__writer: csv.DictWriter = None
@@ -14,7 +12,6 @@ class DynamicsWriter:
 
     def set_column_map(self, object_data: dict):
         if not self.__column_map:
-
             all_columns = []
 
             for o in object_data:
@@ -24,11 +21,11 @@ class DynamicsWriter:
             map_columns = {}
 
             for column in all_columns:
-                if column.startswith('_') is True:
+                if column.startswith("_") is True:
                     map_columns[column] = self._get_valid_kbc_storage_name(column)
                 elif self._is_formatted_value_column(column):
                     map_columns[column] = self._get_shortened_formatted_value_column_name(column)
-                elif '@odata' in column:
+                elif "@odata" in column:
                     continue
                 else:
                     map_columns[column] = column
@@ -37,7 +34,7 @@ class DynamicsWriter:
 
     def _get_valid_kbc_storage_name(self, column_name):
         if not self._is_formatted_value_column(column_name):
-            return f'fk{column_name}'
+            return f"fk{column_name}"
         column_cleaned = self._get_shortened_formatted_value_column_name(column_name)
         return f"fk{column_cleaned}"
 
@@ -53,9 +50,8 @@ class DynamicsWriter:
 
     def _get_writer(self, columns: list[str]) -> csv.DictWriter:
         if not self.__writer:
-            self.__out_stream = open(self.full_table_path, 'w+')
-            self.__writer = csv.DictWriter(self.__out_stream,
-                                           fieldnames=columns, extrasaction='ignore')
+            self.__out_stream = open(self.full_table_path, "w+")
+            self.__writer = csv.DictWriter(self.__out_stream, fieldnames=columns, extrasaction="ignore")
         return self.__writer
 
     def get_result_columns(self) -> list[str]:
