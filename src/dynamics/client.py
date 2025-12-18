@@ -168,7 +168,7 @@ class DynamicsClient(HttpClient):
     def _format_filter_value(self, value: str) -> str:
         """Format value for OData $filter: ISO datetimes unquoted, strings quoted."""
         # ISO 8601 datetime pattern (e.g. "2024-12-05T13:00:00Z" or "2024-12-05T13:00:00")
-        iso_datetime_pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+        iso_datetime_pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
         if value and re.match(iso_datetime_pattern, value):
             return value
         # Regular string - escape single quotes and wrap in quotes
