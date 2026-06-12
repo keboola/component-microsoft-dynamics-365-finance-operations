@@ -1,1 +1,1 @@
-Microsoft Dynamics 365 for Finance and Operations is an enterprise resource planning (ERP) solution developed by Microsoft.
+Extracts data from Microsoft Dynamics 365 Finance & Operations entities.
